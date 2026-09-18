@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Lokapurusha — Jain Cosmology in 3D</title>
+<meta name="description" content="An interactive 3D journey through the Jain universe as the Cosmic Man — the Lokapurusha — with a bilingual guided tour and narrated explanations drawn from the Tattvartha Sutra.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Alegreya+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;500&family=Tiro+Devanagari+Hindi&family=Noto+Sans+Devanagari:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="stage">
+  <div id="scene" aria-label="Interactive 3D model of the Jain universe as a human figure"></div>
+  <div id="markers"></div>
+
+  <div id="fallback" hidden>
+    <p><strong>3D engine could not start.</strong><br>This page needs a browser with WebGL enabled.</p>
+  </div>
+
+  <header class="hud hud-title">
+    <p class="kicker" data-i18n="kicker">JAIN COSMOLOGY · DIGAMBARA TRADITION</p>
+    <h1 data-i18n="title">The Lokapurusha</h1>
+    <p class="subtitle" data-i18n="subtitle">The Jain Universe as the Cosmic Man</p>
+    <p class="hint" data-i18n="hint">Hover a marker to see its name, click to travel there and read about it. Drag to rotate, scroll to zoom.</p>
+    <p class="footline" data-i18n="footnote">Runs entirely in your browser. Detailed narration is spoken by a female voice through Sarvam AI — add your key in Audio settings.</p>
+    <button id="btnSources" class="srcline" data-i18n="sources">Sources</button>
+  </header>
+
+  <div class="hud hud-topright">
+    <div class="langtoggle" role="group" aria-label="Language">
+      <button id="langEn" class="active">EN</button>
+      <button id="langHi">हिं</button>
+    </div>
+    <button id="btnYatra" class="btn-ghost" data-i18n="yatra">Yatra</button>
+    <button id="btnCodex" class="btn-ghost" data-i18n="codex">Codex</button>
+    <button id="btnVoice" class="btn-ghost" data-i18n="voiceOff">Voice off</button>
+    <button id="btnAudio" class="btn-ghost" data-i18n="audio">Audio</button>
+    <button id="btnReset" class="btn-ghost" data-i18n="reset">Reset view</button>
+  </div>
+
+  <aside id="panel" class="panel" hidden>
+    <button id="panelClose" class="panel-close" aria-label="Close">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1 1l10 10M11 1L1 11" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+    </button>
+    <p id="panelKicker">01 / 26</p>
+    <h3 id="panelTitle"></h3>
+    <p id="panelBody"></p>
+    <div id="panelDetails" hidden></div>
+    <button id="panelListen" class="listenbtn" hidden></button>
+  </aside>
+
+  <div id="tour" hidden>
+    <div class="row">
+      <p id="tourStep">1 / 10</p>
+      <button id="tourEnd" class="tbtn" data-i18n="endTour">End tour</button>
+    </div>
+    <h3 id="tourTitle"></h3>
+    <p id="tourText"></p>
+    <div id="tourDots"></div>
+    <div class="btns">
+      <button id="tourPrev" class="tbtn" data-i18n="prev">Previous</button>
+      <button id="tourNext" class="tbtn primary" data-i18n="next">Next</button>
+    </div>
+  </div>
+
+  <nav class="hud hud-chips">
+    <div id="chips"></div>
+  </nav>
+
+  <aside id="codex" aria-label="Codex of beings and worlds">
+    <div class="cx-head">
+      <h2 data-i18n="codex">Codex</h2>
+      <button id="codexClose" aria-label="Close">
+        <svg width="13" height="13" viewBox="0 0 12 12" fill="none"><path d="M1 1l10 10M11 1L1 11" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <div id="codexTabs"></div>
+    <div id="codexCards"></div>
+  </aside>
+</div>
+
+<div id="sourcesModal" class="modal" hidden>
+  <div class="modal-card">
+    <button id="sourcesClose" class="panel-close" aria-label="Close">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1 1l10 10M11 1L1 11" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+    </button>
+    <p class="kicker">LOKAPURUSHA</p>
+    <h3 data-i18n="sources">Sources</h3>
+    <p id="sourcesText"></p>
+    <p id="sourcesNote" class="cnote"></p>
+  </div>
+</div>
+
+<div id="audioModal" class="modal" hidden>
+  <div class="modal-card">
+    <button id="audioClose" class="panel-close" aria-label="Close">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1 1l10 10M11 1L1 11" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+    </button>
+    <p class="kicker">SARVAM AI · BULBUL V3</p>
+    <h3 data-i18n="audioTitle">Narration Voice</h3>
+    <p data-i18n="audioIntro"></p>
+    <label class="afield" for="sarvamKey" data-i18n="audioKeyLabel">Sarvam API key</label>
+    <input id="sarvamKey" type="password" autocomplete="off" spellcheck="false" placeholder="api-subscription-key">
+    <label class="afield" for="sarvamSpeaker" data-i18n="audioVoiceLabel">Voice</label>
+    <select id="sarvamSpeaker"></select>
+    <p class="cnote" data-i18n="audioVoicesHint"></p>
+    <div class="abtns">
+      <button id="audioSave" class="tbtn primary" data-i18n="audioSave">Save</button>
+      <button id="audioTest" class="tbtn" data-i18n="audioTest">Test voice</button>
+      <button id="audioClear" class="tbtn" data-i18n="audioClear">Remove key</button>
+    </div>
+    <p id="audioStatus" class="cnote" role="status"></p>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+<script>window.THREE || document.write('<script src="https://unpkg.com/three@0.128.0/build/three.min.js"><\/script>');</script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>(window.THREE && THREE.OrbitControls) || document.write('<script src="https://unpkg.com/three@0.128.0/examples/js/controls/OrbitControls.js"><\/script>');</script>
+<script src="js/data.js" defer></script>
+<script src="js/data-hi.js" defer></script>
+<script src="js/audio.js" defer></script>
+<script src="js/scene.js" defer></script>
+<script src="js/app.js" defer></script>
+
+<div id="selftestOut" style="position:fixed;top:8px;left:50%;transform:translateX(-50%);z-index:999;
+  background:rgba(20,12,4,.92);color:#ffe9b0;font-family:monospace;font-size:11.5px;line-height:1.55;
+  padding:10px 16px;border-radius:10px;max-width:90vw;white-space:pre;max-height:70vh;overflow:auto;"></div>
+<script>
+window.__errs = [];
+window.onerror = function (m, src, line, col) { window.__errs.push(m + ' @' + line + ':' + col + ' ' + (src||'').split('/').pop()); };
+window.addEventListener('load', function () {
+  setTimeout(function () {
+    var out = [], pass = 0, fail = 0;
+    function t(name, ok) { out.push((ok ? 'PASS ' : 'FAIL ') + name); ok ? pass++ : fail++; }
+    function click(sel){ var el = document.querySelector(sel); if (el) el.click(); return !!el; }
+    try {
+      t('window.Loka defined', !!window.Loka);
+      t('I18N en+hi audio keys', !!(window.Loka.I18N.en.audioTitle && window.Loka.I18N.hi.audioTitle));
+      t('26 spots with EN+HI text', window.Loka.SPOTS.length === 26 &&
+        window.Loka.SPOTS.every(function (s) { return window.Loka.SPOT_EN[s.id] && window.Loka.SPOT_HI[s.id]; }));
+      t('10 tour stops + 10 narrations EN+HI', window.Loka.TOUR_EN.length === 10 &&
+        window.Loka.TOUR_HI.length === 10 && window.Loka.NARR_EN.length === 10 && window.Loka.NARR_HI.length === 10);
+      t('narrations under 2500 chars', window.Loka.NARR_EN.concat(window.Loka.NARR_HI)
+        .every(function (n) { return n.length <= 2500; }));
+      t('16+ codex cards EN+HI', window.Loka.CODEX_EN.length >= 16 &&
+        window.Loka.CODEX_EN.length === window.Loka.CODEX_HI.length);
+      t('LokaScene + LokaAudio defined', !!window.LokaScene && !!window.LokaAudio);
+      t('WebGL canvas rendered', !!document.querySelector('#scene canvas'));
+      t('26 markers rendered', document.querySelectorAll('#markers .marker').length === 26);
+      t('chips rendered', document.querySelectorAll('#chips .chip').length === 5);
+      t('codex opens', (click('#btnCodex'), document.getElementById('codex').classList.contains('open')));
+      t('codex tab switch', (function(){ var b=document.querySelectorAll('.ctab')[1]; if(!b) return false; b.click();
+        return document.querySelectorAll('.ccard').length > 0; })());
+      t('codex closes', (click('#codexClose'), !document.getElementById('codex').classList.contains('open')));
+      t('spot panel opens', (click('.marker[data-id=brahma]'), !document.getElementById('panel').hidden));
+      t('listen button shown', !document.getElementById('panelListen').hidden &&
+        document.getElementById('panelListen').textContent.length > 0);
+      t('audio modal opens', (click('#btnAudio'), !document.getElementById('audioModal').hidden));
+      t('speaker options built', document.querySelectorAll('#sarvamSpeaker option').length
+        === window.Loka.FEMALE_VOICES.length);
+      t('audio modal closes', (click('#audioClose'), document.getElementById('audioModal').hidden));
+      t('hindi switch', (click('#langHi'), document.documentElement.lang === 'hi'));
+      t('hindi panel rendered', document.getElementById('panelTitle').textContent.charCodeAt(0) > 0x0900);
+      t('tour starts in hindi', (click('#btnYatra'), !document.getElementById('tour').hidden));
+      t('tour step 1/10', document.getElementById('tourStep').textContent.indexOf('1 / 10') === 0);
+      t('tour advances', (click('#tourNext'), document.getElementById('tourStep').textContent.indexOf('2 / 10') === 0));
+      t('tour ends', (click('#tourEnd'), document.getElementById('tour').hidden));
+      t('back to english', (click('#langEn'), document.documentElement.lang === 'en'));
+      t('panel closes', (click('#panelClose'), document.getElementById('panel').hidden));
+      t('no WebGL fallback shown', document.getElementById('fallback').hidden);
+    } catch (e) {
+      out.push('EXCEPTION ' + (e && e.message));
+      fail++;
+    }
+    if (window.__errs.length) out.push('JS ERRORS: ' + window.__errs.slice(0, 5).join(' | '));
+    out.push('---');
+    out.push(pass + ' passed, ' + fail + ' failed');
+    document.getElementById('selftestOut').textContent = out.join('\n');
+    document.title = fail === 0 ? 'SELFTEST OK (' + pass + ')' : 'SELFTEST FAILED (' + fail + ')';
+  }, 2500);
+});
+</script>
+</body>
+</html>
