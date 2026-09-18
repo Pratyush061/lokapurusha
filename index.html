@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Lokapurusha — Jain Cosmology in 3D</title>
+<meta name="description" content="An interactive 3D journey through the Jain universe as the Cosmic Man — the Lokapurusha — with a bilingual guided tour and narrated explanations drawn from the Tattvartha Sutra.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Alegreya+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;500&family=Tiro+Devanagari+Hindi&family=Noto+Sans+Devanagari:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="stage">
+  <div id="scene" aria-label="Interactive 3D model of the Jain universe as a human figure"></div>
+  <div id="markers"></div>
+
+  <div id="fallback" hidden>
+    <p><strong>3D engine could not start.</strong><br>This page needs a browser with WebGL enabled.</p>
+  </div>
+
+  <header class="hud hud-title">
+    <p class="kicker" data-i18n="kicker">JAIN COSMOLOGY · DIGAMBARA TRADITION</p>
+    <h1 data-i18n="title">The Lokapurusha</h1>
+    <p class="subtitle" data-i18n="subtitle">The Jain Universe as the Cosmic Man</p>
+    <p class="hint" data-i18n="hint">Hover a marker to see its name, click to travel there and read about it. Drag to rotate, scroll to zoom.</p>
+    <p class="footline" data-i18n="footnote">Runs entirely in your browser. Detailed narration is spoken by a female voice through Sarvam AI — add your key in Audio settings.</p>
+    <button id="btnSources" class="srcline" data-i18n="sources">Sources</button>
+  </header>
+
+  <div class="hud hud-topright">
+    <div class="langtoggle" role="group" aria-label="Language">
+      <button id="langEn" class="active">EN</button>
+      <button id="langHi">हिं</button>
+    </div>
+    <button id="btnYatra" class="btn-ghost" data-i18n="yatra">Yatra</button>
+    <button id="btnCodex" class="btn-ghost" data-i18n="codex">Codex</button>
+    <button id="btnVoice" class="btn-ghost" data-i18n="voiceOff">Voice off</button>
+    <button id="btnAudio" class="btn-ghost" data-i18n="audio">Audio</button>
+    <button id="btnReset" class="btn-ghost" data-i18n="reset">Reset view</button>
+  </div>
+
+  <aside id="panel" class="panel" hidden>
+    <button id="panelClose" class="panel-close" aria-label="Close">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1 1l10 10M11 1L1 11" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+    </button>
+    <p id="panelKicker">01 / 26</p>
+    <h3 id="panelTitle"></h3>
+    <p id="panelBody"></p>
+    <div id="panelDetails" hidden></div>
+    <button id="panelListen" class="listenbtn" hidden></button>
+  </aside>
+
+  <div id="tour" hidden>
+    <div class="row">
+      <p id="tourStep">1 / 10</p>
+      <button id="tourEnd" class="tbtn" data-i18n="endTour">End tour</button>
+    </div>
+    <h3 id="tourTitle"></h3>
+    <p id="tourText"></p>
+    <div id="tourDots"></div>
+    <div class="btns">
+      <button id="tourPrev" class="tbtn" data-i18n="prev">Previous</button>
+      <button id="tourNext" class="tbtn primary" data-i18n="next">Next</button>
+    </div>
+  </div>
+
+  <nav class="hud hud-chips">
+    <div id="chips"></div>
+  </nav>
+
+  <aside id="codex" aria-label="Codex of beings and worlds">
+    <div class="cx-head">
+      <h2 data-i18n="codex">Codex</h2>
+      <button id="codexClose" aria-label="Close">
+        <svg width="13" height="13" viewBox="0 0 12 12" fill="none"><path d="M1 1l10 10M11 1L1 11" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <div id="codexTabs"></div>
+    <div id="codexCards"></div>
+  </aside>
+</div>
+
+<div id="sourcesModal" class="modal" hidden>
+  <div class="modal-card">
+    <button id="sourcesClose" class="panel-close" aria-label="Close">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1 1l10 10M11 1L1 11" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+    </button>
+    <p class="kicker">LOKAPURUSHA</p>
+    <h3 data-i18n="sources">Sources</h3>
+    <p id="sourcesText"></p>
+    <p id="sourcesNote" class="cnote"></p>
+  </div>
+</div>
+
+<div id="audioModal" class="modal" hidden>
+  <div class="modal-card">
+    <button id="audioClose" class="panel-close" aria-label="Close">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1 1l10 10M11 1L1 11" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+    </button>
+    <p class="kicker">SARVAM AI · BULBUL V3</p>
+    <h3 data-i18n="audioTitle">Narration Voice</h3>
+    <p data-i18n="audioIntro"></p>
+    <label class="afield" for="sarvamKey" data-i18n="audioKeyLabel">Sarvam API key</label>
+    <input id="sarvamKey" type="password" autocomplete="off" spellcheck="false" placeholder="api-subscription-key">
+    <label class="afield" for="sarvamSpeaker" data-i18n="audioVoiceLabel">Voice</label>
+    <select id="sarvamSpeaker"></select>
+    <p class="cnote" data-i18n="audioVoicesHint"></p>
+    <div class="abtns">
+      <button id="audioSave" class="tbtn primary" data-i18n="audioSave">Save</button>
+      <button id="audioTest" class="tbtn" data-i18n="audioTest">Test voice</button>
+      <button id="audioClear" class="tbtn" data-i18n="audioClear">Remove key</button>
+    </div>
+    <p id="audioStatus" class="cnote" role="status"></p>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+<script>window.THREE || document.write('<script src="https://unpkg.com/three@0.128.0/build/three.min.js"><\/script>');</script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>(window.THREE && THREE.OrbitControls) || document.write('<script src="https://unpkg.com/three@0.128.0/examples/js/controls/OrbitControls.js"><\/script>');</script>
+<script src="js/data.js" defer></script>
+<script src="js/data-hi.js" defer></script>
+<script src="js/audio.js" defer></script>
+<script src="js/scene.js" defer></script>
+<script src="js/app.js" defer></script>
+</body>
+</html>
